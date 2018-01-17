@@ -22,7 +22,7 @@ algae_tab <-
   readHTMLTable(algae, header = F, which = 2, stringsAsFactors = F, trim = T)
 
 algae_types <- # data downloaded from algaebase
-  read_csv("algae_types.csv")
+  read_csv("./data/algae_types.csv")
 
 
 # tidy table --------------------------------------------------------------
@@ -59,19 +59,23 @@ algae_tab_type <-
 algae_tab_type$temp <- factor(algae_tab_type$temp, levels = c("5°", "10°", "25°", "30°"))
 
 algae_tab_type$salinity <- as.character(algae_tab_type$salinity)
-algae_tab_type$salinity <- factor(algae_tab_type$salinity, levels = c("35", "0"))
+algae_tab_type$type <- factor(algae_tab_type$type, levels = c("marine", "freshwater"))
 
-algae_tab_type %>%
-  ggplot(aes(y = growth_rate, x = light, color = type)) +
-  geom_jitter(width = .1, size = 4) +
+algae_plot <-
+  algae_tab_type %>%
+  ggplot(aes(y = growth_rate, x = light)) +
+  geom_dotplot(aes(fill = type), binaxis = "y",
+               stackdir = "center", binwidth = 0.05) +
   facet_grid(~temp) +
   labs(x = "Light Intensity (lux)", y = "Growth Rate", title = "Specific growth rates of algae (divisions per day) at different light intensities and temperatures",  caption = "Source: Aquatext, Algaebase") + 
   theme_economist_white(gray_bg=FALSE) +
-  scale_color_economist(name = "Algae Type") +
+  scale_fill_economist(name = "Algae Type") +
   guides(color = guide_legend(override.aes = list(size = 3))) + 
   theme(axis.title = element_text(size = 16),
         axis.text = element_text(size = 12))
 
-# cleaned dataset ---------------------------------------------------------
+# outputs ---------------------------------------------------------
 
-write.csv(algae_tab_type, "./processed/algae_processed.csv")
+write.csv(algae_tab_type, "./data/algae_processed.csv")
+
+ggsave(filename = "./plot/algae_submission.png", plot = algae_plot, width = 17.04, height = 7.69)
