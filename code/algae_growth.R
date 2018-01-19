@@ -10,8 +10,6 @@
 
 library(XML)
 library(tidyverse)
-library(ggplot2)
-library(ggridges)
 library(ggbeeswarm)
 library(viridis)
 
@@ -50,7 +48,8 @@ algae_tab_tidy <-
   mutate(temp = paste0(str_extract(temp_light, "\\d+"), "°C"),
          light = str_replace(temp_light,"\\d+.",""),
          growth_rate = as.numeric(growth_rate),
-         growth_rate = if_else(species == "Isochrysis aff. galbana" & is.na(growth_rate), 0.06, growth_rate)) # this variable was missing
+         growth_rate = if_else(species == "Isochrysis aff. galbana" & is.na(growth_rate), 0.06, growth_rate)) %>%  # this variable was missing
+  select(-temp_light)
 
 algae_tab_type <-
   left_join(algae_tab_tidy, algae_types)
